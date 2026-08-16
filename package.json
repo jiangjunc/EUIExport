@@ -1,0 +1,37 @@
+{
+  "name": "eggy-eui-cli",
+  "version": "1.0.0",
+  "description": "蛋仔派对 EUI 工具箱: eui export(把本地数据包翻译成人类可读 UI 数据包) + eui edit(用来修改字段数据的玩意)；单一 CLI,零运行时依赖",
+  "author": {
+    "name": "锵沉",
+    "email": "me@chyu.top",
+    "url": "https://chyu.top"
+  },
+  "type": "commonjs",
+  "main": "lib/cmd-export.js",
+  "bin": {
+    "eui": "bin/eui.js"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "test",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node test/smoke.js && node test/edit-smoke.js"
+  },
+  "keywords": [
+    "eggy-party",
+    "eui",
+    "eggitor",
+    "map",
+    "zstd",
+    "messagepack",
+    "cli"
+  ],
+  "engines": {
+    "node": ">=16"
+  },
+  "license": "MIT"
+}
