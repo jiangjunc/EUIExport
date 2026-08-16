@@ -1,5 +1,7 @@
 # Eggy EUI CLI（蛋仔派对 EUI 工具箱）
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 > 蛋仔派对 PC 编辑器 EUI 工具的合并版 CLI：**导出** + **字段编辑**，一个命令搞定。
 > 零运行时依赖（内置 Zstandard + MessagePack 编解码）。
 > 同时支持 **FS（帧同步）** 与 **SE（世界版 / 状态同步）** 两类地图。
