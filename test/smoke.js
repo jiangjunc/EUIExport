@@ -59,6 +59,19 @@ async function main() {
     const nameHit = maps.matchByName(fake, 'a');
     assert(nameHit.length === 1 && nameHit[0].name === 'a', 'matchByName 也应优先精确命中');
     console.log('PASS  优先级匹配（精确>前缀>包含）');
+
+    // 名称回退链：.gmp 里的 projectID -> lua 工程 eggy.json 的 projectName / vscode 工程名
+    const idx = maps.readProjectIndex();
+    const gmpDraft = drafts.find((d) => maps.readProjectIdFromGmp(d.dir));
+    if (gmpDraft) {
+      const pid = maps.readProjectIdFromGmp(gmpDraft.dir);
+      const entry = idx[pid];
+      assert(entry, 'gmp projectID 应命中项目索引（vscode_projs.json）');
+      assert(entry.projectName || entry.vscodeName, '回退名称（eggy.json projectName / vscode 工程名）应有值');
+      console.log(`PASS  名称回退链: gmp projectID=${pid} -> ${entry.projectName || entry.vscodeName}`);
+    } else {
+      console.log('SKIP  名称回退链（无 .gmp 草稿可测）');
+    }
     return;
   }
 
