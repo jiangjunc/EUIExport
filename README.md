@@ -5,7 +5,7 @@
 [![GitHub](https://img.shields.io/badge/GitHub-jiangjunc%2FEUIExport-blue)](https://github.com/jiangjunc/EUIExport)
 
 > 蛋仔派对 PC 编辑器 EUI 工具 CLI：**导出** + **字段编辑**，一个命令搞定。
-> 命令行参数解析基于 [commander](https://github.com/tj/commander.js)（唯一运行时依赖），编解码（Zstandard + MessagePack）全部内置。
+> 命令行参数解析基于 [commander](https://github.com/tj/commander.js)，交互选择基于 [enquirer](https://github.com/enquirer/enquirer)，编解码（Zstandard + MessagePack）全部内置。
 > 同时支持 **FS（帧同步）** 与 **SE（世界版 / 状态同步）** 两类地图。
 >
 > **适用对象**：蛋仔派对 PC 编辑器（Eggitor）的地图工程开发者。
@@ -82,6 +82,7 @@ eui -v | --version                          显示版本号
 
 > 兼容旧用法：`eui <草稿名称|目录|id> [选项]` 等价于 `eui export ...`。
 > 每个子命令的完整选项以 CLI 帮助为准：`eui export -h` / `eui edit -h` / `eui config -h` / `eui list -h`。
+> 交互选择（如 `eui export` 无参数时）支持方向键 ↑↓ + 回车（基于 enquirer）。
 
 ## 配置
 
@@ -101,8 +102,9 @@ set EGGY_EUI_OUTPUT=D:/EUI_OUTPUT    # Windows
 export EGGY_EUI_OUTPUT=/data/eui     # macOS / Linux
 ```
 
-**导出目录优先级**：`-o 参数` > `EGGY_EUI_OUTPUT 环境变量` > `eui config export-dir 配置` > 当前目录。
-其中 `-o` 是"直接指定目录"（文件直接落进去）；后两者是"基础目录"（实际输出 `<基础目录>/<草稿名>/`）。
+**导出目录优先级**：`-o 参数` > `EGGY_EUI_OUTPUT 环境变量` > `eui config export-dir 配置` > 草稿对应的 lua 工程目录 > 当前目录。
+其中 `-o` 是"直接指定目录"（文件直接落进去）；其余是"基础目录"（实际输出 `<基础目录>/<草稿名>/`）。
+> 默认（未指定 -o / 环境变量 / 配置）时，导出到**该草稿对应的 lua 工程目录**（如 `LuaSource_记忆卡牌/记忆卡牌/`）；找不到 lua 工程时才回退当前目录。
 
 ### 设置编辑器根目录
 
@@ -203,7 +205,7 @@ EUIExport/
 ├── test/
 │   ├── smoke.js         # 导出流水线冒烟测试
 │   └── edit-smoke.js    # 编辑往返保真冒烟测试
-└── package.json         # 依赖：commander（命令行参数解析）
+└── package.json         # 依赖：commander（参数解析）+ enquirer（交互选择）
 ```
 
 ## 测试
