@@ -13,7 +13,7 @@
 > 源码仓库：<https://github.com/jiangjunc/EUIExport>
 > npm 主页：<https://www.npmjs.com/package/euiexport>
 
-## 它能做什么
+## 特性
 
 蛋仔编辑器的 UI（EUI）存在地图工程的 `eui.mm`（FS）/ `euidata.mm`（SE）里，内部是 **Zstandard 压缩 + MessagePack 序列化** 的二进制数据，非常不利于人类和 AI 阅读。本工具把 EUI 还原成 AI 可读的数据，并允许直接修改存档字段。
 
@@ -23,11 +23,7 @@
 | `eui edit` | **直接修改 EUI 字段**——包括官方 Lua API 无法修改的属性（Meta 只读 / 私有字段） |
 
 > **FS / SE 地图**：两种类型的 EUI 数据 schema 完全相同（FS 用 `eui.mm`，SE 用 `euidata.mm`），工具自动识别类型。
-> 自动扫描的目录：
-> - `editor_maps`（FS 地图数据文件夹）
-> - `help_build_gmps`（可能包含 SE 地图数据文件夹）
-> - `joint_construction_gmps`（共建地图数据文件夹）
-> - `se_maps`（SE 草稿地图数据文件夹）
+> 自动扫描的目录：`editor_maps`（FS 地图数据）、`help_build_gmps`（官方教学）、`joint_construction_gmps`（共建）、`se_maps`（SE 草稿）。
 
 ## 安装
 
@@ -70,6 +66,8 @@ eui types
 
 本地开发时（没全局安装）用 `node bin/eui.js export 我的地图` 效果一毛一样。
 
+> **编辑路径语法**：`--set <path>=<value>` 里，数组用 `[下标]`（或 `.下标`）；节点可用「名称」或「id」选择；嵌套对象用 `.` 逐层进；值能按 JSON 解析就按 JSON（数字 / 布尔 / 数组 / 对象），否则按字符串。完整字段路径可用 `eui edit <草稿> --dump` 查看。
+
 ## CLI 命令
 
 ```
@@ -83,35 +81,7 @@ eui -v | --version                          显示版本号
 ```
 
 > 兼容旧用法：`eui <草稿名称|目录|id> [选项]` 等价于 `eui export ...`。
-
-### `export` 选项
-
-| 参数 | 说明 |
-| --- | --- |
-| `[map]` | 地图草稿名称 / 工程目录 / base64 地图 id（缺省则交互选择） |
-| `-l, --list` | 列出所有地图草稿名称后退出 |
-| `-i, --interactive` | 强制进入交互选择（脚本 / 管道也可用） |
-| `-r, --root <path>` | 手动指定编辑器根目录（也可用 `eui config set editor-root <path>` 持久化） |
-| `-o, --output <dir>` | 输出目录（直接指定）；未指定时按优先级取：`EGGY_EUI_OUTPUT` > `eui config export-dir` > 当前目录 |
-| `-c, --compact` | `UIData.json` 输出压缩 JSON（默认美化缩进 2 格） |
-| `-t, --list-types` | 打印控件类型对照表后退出 |
-| `-q, --quiet` | 安静模式：只打印一行结果摘要 |
-| `--no-color` `-h, --help` | 通用选项 |
-
-### `edit` 选项
-
-| 参数 | 说明 |
-| --- | --- |
-| `--set <path>=<value>` | 设置 / 新增字段，可多次（例：`nodes[标题].size[0]=100`） |
-| `--patch <file.json>` | 应用 JSON Patch 数组 `[{op,path,value}]`，op: `replace` \| `add` \| `remove` |
-| `--dump` | 打印场景顶层字段 + 节点字段样本（用于找路径） |
-| `-l, --list` | 列出所有地图草稿 |
-| `--in-place` | 直接写回原 `eui.mm`（自动备份 `eui.mm.bak`） |
-| `-o, --output <file>` | 输出到指定文件（默认: `<地图目录>/eui.modified.mm`） |
-| `-r, --root <path>` | 手动指定编辑器根目录（也可用 `eui config set editor-root <path>` 持久化） |
-| `-q, --quiet` `--no-color` `-h, --help` | 通用选项 |
-
-**路径语法**：数组用 `[下标]`（或 `.下标`）；节点可用「名称」或「id」选择；嵌套对象用 `.` 逐层进。`--set` 值能按 JSON 解析就按 JSON（数字 / 布尔 / 数组 / 对象），否则按字符串。
+> 每个子命令的完整选项以 CLI 帮助为准：`eui export -h` / `eui edit -h` / `eui config -h` / `eui list -h`。
 
 ## 配置
 
@@ -155,7 +125,9 @@ eui export -r D:/FeverApps/party_pc 我的地图
 
 > 配置文件 `~/.euiexport.json` 属于用户级配置，可放心配合 Git 使用；也可用环境变量 `EGGY_EUI_CONFIG` 指定其他配置文件路径（多环境 / CI 场景）。
 
-## 草稿名称从哪来
+## 进阶
+
+### 草稿名称从哪来
 
 每个地图草稿的名称按优先级获取：
 
@@ -165,7 +137,7 @@ eui export -r D:/FeverApps/party_pc 我的地图
 
 **扫描范围**：自动遍历 FS 与 SE 的所有地图工程根目录（`editor_maps` / `help_build_gmps` / `joint_construction_gmps` / `se_maps`），并识别 FS（`eui.mm`）与 SE（`euidata.mm`）两种工程；同一地图存在于多个根目录时按地图 UUID 去重。
 
-## `export` 输出内容
+### `export` 输出内容
 
 输出是一个文件夹（默认以草稿名命名），包含三个文件：
 
@@ -195,7 +167,7 @@ eui export -r D:/FeverApps/party_pc 我的地图
 
 `scene.nodes` 里每个节点对象包含可读分组：`layout`（布局几何）、`visibility`（显隐规则）、`events`（触摸与显隐事件）、`behavior`（交互）、`text/image/panel/background`（控件专属外观，颜色已转 `#hex`）、`children`（子节点数组）、`other`（未归类原始字段）。
 
-## 原理（存储链路）
+### 原理（存储链路）
 
 ```
 EUI 数据（FS: eui.mm / SE: euidata.mm）

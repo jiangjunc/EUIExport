@@ -1,0 +1,8 @@
+# 统一换行：仓库内 LF，检出按平台（Windows CRLF / Unix LF）
+* text=auto
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.mm binary
+*.gmp binary
+*.png binary

@@ -1,5 +1,17 @@
+# 依赖与锁文件
 node_modules/
+.npm-cache/
+
+# 日志
 npm-debug.log*
+*.log
+
+# 导出/编辑产物
 *.bak
 eui.modified.mm
+_tmp*/
+
+# 编辑器 / 系统
 .vscode/
+.DS_Store
+Thumbs.db

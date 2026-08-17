@@ -8,14 +8,12 @@
     "url": "https://chyu.top"
   },
   "type": "commonjs",
-  "main": "lib/cmd-export.js",
   "bin": {
     "eui": "bin/eui.js"
   },
   "files": [
     "bin",
     "lib",
-    "test",
     "README.md",
     "LICENSE"
   ],
