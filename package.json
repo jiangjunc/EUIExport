@@ -1,7 +1,7 @@
 {
-  "name": "eggy-eui-cli",
-  "version": "1.0.0",
-  "description": "蛋仔派对 EUI 工具箱: eui export(把本地数据包翻译成人类可读 UI 数据包) + eui edit(用来修改字段数据的玩意)；单一 CLI,零运行时依赖",
+  "name": "euiexport",
+  "version": "1.0.2",
+  "description": "蛋仔派对 EUI 工具箱: eui export(把本地数据包翻译成人类可读 UI 数据包) + eui edit(用来修改字段数据的玩意)；单一 CLI,零运行时依赖,支持 FS(帧同步)与 SE(世界版)地图",
   "author": {
     "name": "锵沉",
     "email": "me@chyu.top",
@@ -16,22 +16,33 @@
     "bin",
     "lib",
     "test",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "test": "node test/smoke.js && node test/edit-smoke.js"
   },
   "keywords": [
     "eggy-party",
+    "eggy",
     "eui",
     "eggitor",
     "map",
     "zstd",
     "messagepack",
-    "cli"
+    "cli",
+    "蛋仔派对"
   ],
   "engines": {
     "node": ">=16"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jiangjunc/EUIExport.git"
+  },
+  "homepage": "https://github.com/jiangjunc/EUIExport",
+  "bugs": {
+    "url": "https://github.com/jiangjunc/EUIExport/issues"
   },
   "license": "MIT"
 }

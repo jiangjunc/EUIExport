@@ -1,55 +1,75 @@
-# Eggy EUI CLI（蛋仔派对 EUI 工具箱）
+# EUIExport（蛋仔派对 EUI 工具箱）
 
+[![npm](https://img.shields.io/npm/v/euiexport)](https://www.npmjs.com/package/euiexport)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub](https://img.shields.io/badge/GitHub-jiangjunc%2FEUIExport-blue)](https://github.com/jiangjunc/EUIExport)
 
 > 蛋仔派对 PC 编辑器 EUI 工具的合并版 CLI：**导出** + **字段编辑**，一个命令搞定。
 > 零运行时依赖（内置 Zstandard + MessagePack 编解码）。
 > 同时支持 **FS（帧同步）** 与 **SE（世界版 / 状态同步）** 两类地图。
 >
 > **适用对象**：蛋仔派对 PC 编辑器（Eggitor）的地图工程开发者。
+>
+> 源码仓库：<https://github.com/jiangjunc/EUIExport>
+> npm 主页：<https://www.npmjs.com/package/euiexport>
+
+## 安装
+
+```bash
+# 全局安装，装完直接敲 eui 命令
+npm install -g euiexport
+
+# 或者不装，用 npx 临时跑一把
+npx euiexport export 我的地图
+```
+
+> 装完 `eui -h` 看看；想从源码跑就用 `node bin/eui.js ...`。
+> 找草稿需要蛋仔派对 PC 编辑器（Eggitor）已安装（自动从 `~/.eggitor/cli/editor_config.json` 定位安装目录）。
 
 ## 它能做什么
 
-蛋仔编辑器的 UI（EUI）存在地图工程的 `eui.mm`（FS）/ `euidata.mm`（SE）里，内部是 **Zstandard 压缩 + MessagePack 序列化** 的二进制数据，肉眼无法直接阅读，官方 Lua API 也只能改其中一部分属性。
+蛋仔编辑器的 UI（EUI）存在地图工程的 `eui.mm`（FS）/ `euidata.mm`（SE）里，内部是 **Zstandard 压缩 + MessagePack 序列化** 的二进制数据，非常不利于人类和AI阅读，本项目工具完全解决这一痛点，让AI可以"看"见UI页面。
 
-本工具提供两个互补能力：
+本工具提供两坨主要作用：
 
 | 子命令 | 作用 |
 | --- | --- |
 | `eui export` | 把 EUI 数据还原成 **AI 可读**的 UI 数据包（JSON + 树状图 + 字段字典），让 AI / 脚本直接"看到"界面 |
 | `eui edit` | **直接修改 EUI 字段**——包括官方 Lua API 无法修改的属性（Meta 只读 / 私有字段） |
 
-> **FS / SE 地图**：两种类型的 EUI 数据 schema 完全同构（FS 用 `eui.mm`，SE 用 `euidata.mm`），工具自动识别，无需额外参数。
-> 自动扫描的目录：`editor_maps`（FS 草稿）、`help_build_gmps`（官方教学，含 SE）、`joint_construction_gmps`（共建，多为 SE）、`se_maps`（SE 草稿，预留）。
+> **FS / SE 地图**：两种类型的 EUI 数据 schema 完全是一个一毛一样的玩意（FS 用 `eui.mm`，SE 用 `euidata.mm`），工具自觉识别，不用你瞎操心。
+> 自动扫描的目录：
+>- `editor_maps`（FS地图数据藏身地）
+>- `help_build_gmps`（可能包含SE地图数据藏身地）
+>- `joint_construction_gmps`（共建地图数据藏身地）
+>- `se_maps`（SE草稿地图数据藏身地）。
 
 ## 快速开始
 
 ```bash
-# 交互式选择草稿并导出
-node bin/eui.js export
+# 交互式选一坨草稿并导出(会列出自动从各个角落找到的草稿名称给你自助餐吃)
+eui export
 
 # 按草稿名称导出（支持仅输入半个地图名称）
-node bin/eui.js export 我的地图
+eui export 我的地图
 
-# 指向含 eui.mm 的地图工程目录 / base64 地图 id
-node bin/eui.js export "Documents/etc/editor_maps/<base64id>__pc"
-node bin/eui.js export <base64id> -c
+# 指向编辑器的地图本地数据存储目录 或者 base64 地图id
+# 提个醒: ~ 是编辑器安装目录(可通过`网易发烧友平台=>蛋仔派对"开始游戏"按钮右边的三条横杠=>查看文件`进行获取编辑器安装路径)
+# 编辑器的地图本地数据存储目录: 一般编辑器扔在`~/Documents/etc/editor_maps/`
+# base64 地图id: 从你Lua代码项目里的 `eggy.json` 里的 `projectID` 字段获取
+eui export "~/Documents/etc/editor_maps/<base64id>__pc"
+eui export <base64id> -c
 
-# 查看字段并修改
-node bin/eui.js edit 我的地图 --dump
-node bin/eui.js edit 我的地图 --set "nodes[0].size[0]=100" --in-place
+# 读写UI字段属性
+eui edit 我的地图 --dump # 查看所有字段
+eui edit 我的地图 --set "nodes[0].size[0]=100" --in-place # 修改第一个节点的宽度为100px
 
 # 列出全部草稿 / 查看类型对照表
-node bin/eui.js list
-node bin/eui.js types
+eui list
+eui types
 ```
 
-安装为全局命令后可直接用 `eui ...`：
-
-```bash
-npm install -g .        # 或 npm link
-eui export 我的地图
-```
+本地开发时（没全局安装）用 `node bin/eui.js export 我的地图` 效果一毛一样。
 
 ## CLI 命令
 
@@ -85,7 +105,7 @@ eui -v | --version                          显示版本号
 不想每次敲 `-o`？两种方式可持久设置默认导出路径，之后所有导出自动写入 `<导出路径>/<草稿名>/`（除非本次用 `-o` 覆盖）：
 
 ```bash
-# 方式一：配置文件（推荐，写入 ~/.eggy-eui-cli.json）
+# 方式一：配置文件（推荐，写入 ~/.euiexport.json）
 eui config set export-dir D:/EUI_OUTPUT
 eui config get export-dir        # 查看
 eui config unset export-dir      # 删除
@@ -99,7 +119,7 @@ export EGGY_EUI_OUTPUT=/data/eui     # macOS / Linux
 **导出目录优先级**：`-o 参数` > `EGGY_EUI_OUTPUT 环境变量` > `eui config export-dir 配置` > 当前目录。
 其中 `-o` 是"直接指定目录"（文件直接落进去）；后两者是"基础目录"（实际输出 `<基础目录>/<草稿名>/`）。
 
-> 配置文件 `~/.eggy-eui-cli.json` 属于用户级配置，不含任何地图数据，可放心配合 Git 使用；也可用环境变量 `EGGY_EUI_CONFIG` 指定其他配置文件路径（多环境 / CI 场景）。
+> 配置文件 `~/.euiexport.json` 属于用户级配置，不含任何地图数据，可放心配合 Git 使用；也可用环境变量 `EGGY_EUI_CONFIG` 指定其他配置文件路径（多环境 / CI 场景）。
 
 ### `edit` 选项
 
@@ -119,8 +139,6 @@ export EGGY_EUI_OUTPUT=/data/eui     # macOS / Linux
 ## 草稿名称从哪来
 
 每个地图工程 `desc.mm` 里的 `map_name` 字段（权威来源）；读不到时回退到 `Documents/vscode_projs.json`（VS Code 工程名）。
-
-**草稿发现不依赖当前目录**：自动从工具安装位置向上回溯 + 读取 `~/.eggitor/cli/editor_config.json` 定位编辑器根目录，任意 cwd 下都能找到草稿；仍失败时可 `-r/--root` 手动指定编辑器根目录。
 
 **扫描范围**：自动遍历 FS 与 SE 的所有地图工程根目录（`editor_maps` / `help_build_gmps` / `joint_construction_gmps` / `se_maps`），并识别 FS（`eui.mm`）与 SE（`euidata.mm`）两种工程；同一地图存在于多个根目录时按地图 UUID 去重。
 
@@ -180,7 +198,7 @@ eui-cli/
 │   ├── cmd-export.js    # export 子命令
 │   ├── cmd-edit.js      # edit 子命令
 │   ├── cmd-config.js    # config 子命令（默认导出路径等）
-│   ├── config.js        # 用户配置读写（~/.eggy-eui-cli.json）
+│   ├── config.js        # 用户配置读写（~/.euiexport.json）
 │   ├── eui.js           # EUI 节点可读化 / 统计 / 树索引
 │   ├── maps.js          # 地图草稿发现与选择
 │   ├── readme.js        # 输出包内 README（AI 阅读指南）生成
