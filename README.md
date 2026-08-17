@@ -5,7 +5,7 @@
 [![GitHub](https://img.shields.io/badge/GitHub-jiangjunc%2FEUIExport-blue)](https://github.com/jiangjunc/EUIExport)
 
 > 蛋仔派对 PC 编辑器 EUI 工具的合并版 CLI：**导出** + **字段编辑**，一个命令搞定。
-> 零运行时依赖（内置 Zstandard + MessagePack 编解码）。
+> 命令行参数解析基于 [commander](https://github.com/tj/commander.js)（唯一运行时依赖），编解码（Zstandard + MessagePack）全部内置。
 > 同时支持 **FS（帧同步）** 与 **SE（世界版 / 状态同步）** 两类地图。
 >
 > **适用对象**：蛋仔派对 PC 编辑器（Eggitor）的地图工程开发者。
@@ -23,7 +23,7 @@ npm install -g euiexport
 npx euiexport export 我的地图
 ```
 
-> 装完 `eui -h` 看看；想从源码跑就用 `node bin/eui.js ...`。
+> 装完 `eui -h` 看看；想从源码跑就先 `npm install`（会装 commander），再 `node bin/eui.js ...`。
 > 找草稿需要蛋仔派对 PC 编辑器（Eggitor）已安装（自动从 `~/.eggitor/cli/editor_config.json` 定位安装目录）。
 
 ## 它能做什么
@@ -37,27 +37,27 @@ npx euiexport export 我的地图
 | `eui export` | 把 EUI 数据还原成 **AI 可读**的 UI 数据包（JSON + 树状图 + 字段字典），让 AI / 脚本直接"看到"界面 |
 | `eui edit` | **直接修改 EUI 字段**——包括官方 Lua API 无法修改的属性（Meta 只读 / 私有字段） |
 
-> **FS / SE 地图**：两种类型的 EUI 数据 schema 完全是一个一毛一样的玩意（FS 用 `eui.mm`，SE 用 `euidata.mm`），工具自觉识别，不用你瞎操心。
+> **FS / SE 地图**：两种类型的 EUI 数据 schema 完全相同（FS 用 `eui.mm`，SE 用 `euidata.mm`），工具自动识别类型。
 > 自动扫描的目录：
->- `editor_maps`（FS地图数据藏身地）
->- `help_build_gmps`（可能包含SE地图数据藏身地）
->- `joint_construction_gmps`（共建地图数据藏身地）
->- `se_maps`（SE草稿地图数据藏身地）。
+>- `editor_maps`（FS地图数据文件夹）
+>- `help_build_gmps`（可能包含SE地图数据文件夹）
+>- `joint_construction_gmps`（共建地图数据文件夹）
+>- `se_maps`（SE草稿地图数据文件夹）。
 
 ## 快速开始
 
 ```bash
-# 交互式选一坨草稿并导出(会列出自动从各个角落找到的草稿名称给你自助餐吃)
+# 交互式选择草稿并导出
 eui export
 
-# 按草稿名称导出（支持仅输入半个地图名称）
+# 按草稿名称导出（支持仅输入地图名称片段）
 eui export 我的地图
 
 # 指向编辑器的地图本地数据存储目录 或者 base64 地图id
-# 提个醒: ~ 是编辑器安装目录(可通过`网易发烧友平台=>蛋仔派对"开始游戏"按钮右边的三条横杠=>查看文件`进行获取编辑器安装路径)
-# 编辑器的地图本地数据存储目录: 一般编辑器扔在`~/Documents/etc/editor_maps/`
+# 提个醒: cwd是编辑器安装目录(可通过`网易发烧友平台=>蛋仔派对"开始游戏"按钮右边的三条横杠=>查看文件`进行获取编辑器安装路径)
+# 编辑器的地图本地数据存储目录: 一般编辑器扔在`./Documents/etc/editor_maps/`
 # base64 地图id: 从你Lua代码项目里的 `eggy.json` 里的 `projectID` 字段获取
-eui export "~/Documents/etc/editor_maps/<base64id>__pc"
+eui export "./Documents/etc/editor_maps/<base64id>__pc"
 eui export <base64id> -c
 
 # 读写UI字段属性
@@ -193,11 +193,11 @@ EUI 数据（FS: eui.mm / SE: euidata.mm）
 
 ```
 eui-cli/
-├── bin/eui.js           # 单一入口（子命令分发）
+├── bin/eui.js           # 单一入口（commander 根程序 + 子命令组装/分发）
 ├── lib/
-│   ├── cmd-export.js    # export 子命令
-│   ├── cmd-edit.js      # edit 子命令
-│   ├── cmd-config.js    # config 子命令（默认导出路径等）
+│   ├── cmd-export.js    # export 子命令（commander 定义选项）
+│   ├── cmd-edit.js      # edit 子命令（commander 定义选项）
+│   ├── cmd-config.js    # config 子命令（commander 定义 path/get/set/unset）
 │   ├── config.js        # 用户配置读写（~/.euiexport.json）
 │   ├── eui.js           # EUI 节点可读化 / 统计 / 树索引
 │   ├── maps.js          # 地图草稿发现与选择
@@ -208,7 +208,7 @@ eui-cli/
 ├── test/
 │   ├── smoke.js         # 导出流水线冒烟测试
 │   └── edit-smoke.js    # 编辑往返保真冒烟测试
-└── package.json
+└── package.json         # 依赖：commander（命令行参数解析）
 ```
 
 ## 测试
