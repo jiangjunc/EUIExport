@@ -24,7 +24,8 @@ npx euiexport export 我的地图
 ```
 
 > 装完 `eui -h` 看看；想从源码跑就先 `npm install`（会装 commander），再 `node bin/eui.js ...`。
-> 找草稿需要蛋仔派对 PC 编辑器（Eggitor）已安装（自动从 `~/.eggitor/cli/editor_config.json` 定位安装目录）。
+> 找草稿需要蛋仔派对 PC 编辑器（Eggitor）已安装。编辑器根目录按优先级确定：
+> `-r/--root` 命令行参数 > `eui config set editor-root <path>` 配置 > 编辑器官方配置 `~/.eggitor/cli/editor_config.json` > 当前工作目录。
 
 ## 它能做什么
 
@@ -50,7 +51,7 @@ npx euiexport export 我的地图
 # 交互式选择草稿并导出
 eui export
 
-# 按草稿名称导出（支持仅输入地图名称片段）
+# 按草稿名称导出（支持: 地图全名 / 前缀匹配 / 关键词匹配）
 eui export 我的地图
 
 # 指向编辑器的地图本地数据存储目录 或者 base64 地图id
@@ -85,21 +86,6 @@ eui -v | --version                          显示版本号
 
 > 兼容旧用法：`eui <草稿名称|目录|id> [选项]` 等价于 `eui export ...`。
 
-### `export` 选项
-
-| 参数 | 说明 |
-| --- | --- |
-| `<草稿名称>` | 按地图草稿名称获取（支持片段） |
-| `<地图目录>` | 含 `eui.mm` 的 `xxx__pc` 文件夹；也支持 `editor_maps` 根目录 / base64 地图 id / 路径片段 |
-| `-l, --list` | 列出所有地图草稿名称后退出 |
-| `-i, --interactive` | 强制进入交互选择（脚本 / 管道也可用） |
-| `-r, --root <path>` | 手动指定编辑器根目录（自动探测失败时用） |
-| `-o, --output <dir>` | 输出目录（直接指定）；未指定时按优先级取：`EGGY_EUI_OUTPUT` 环境变量 > `eui config export-dir` > 当前目录 |
-| `-c, --compact` | UIData.json 输出压缩 JSON（默认美化缩进 2 格） |
-| `-t, --list-types` | 打印控件类型对照表后退出 |
-| `-q, --quiet` | 安静模式：只打印一行结果摘要 |
-| `--no-color` | 禁用 ANSI 颜色 |
-
 ### 设置默认导出路径
 
 不想每次敲 `-o`？两种方式可持久设置默认导出路径，之后所有导出自动写入 `<导出路径>/<草稿名>/`（除非本次用 `-o` 覆盖）：
@@ -119,8 +105,28 @@ export EGGY_EUI_OUTPUT=/data/eui     # macOS / Linux
 **导出目录优先级**：`-o 参数` > `EGGY_EUI_OUTPUT 环境变量` > `eui config export-dir 配置` > 当前目录。
 其中 `-o` 是"直接指定目录"（文件直接落进去）；后两者是"基础目录"（实际输出 `<基础目录>/<草稿名>/`）。
 
-> 配置文件 `~/.euiexport.json` 属于用户级配置，不含任何地图数据，可放心配合 Git 使用；也可用环境变量 `EGGY_EUI_CONFIG` 指定其他配置文件路径（多环境 / CI 场景）。
+### 设置编辑器根目录
 
+工具靠「编辑器根目录」来发现地图草稿（`editor_maps` 等目录都在编辑器安装目录下）。查找优先级（高 → 低）：
+
+1. `-r, --root <path>` 命令行参数（本次生效）
+2. `eui config set editor-root <path>` 配置文件（持久化，推荐）
+3. 编辑器官方配置 `~/.eggitor/cli/editor_config.json`（`project_dir` / `client_exe`）
+4. 当前工作目录
+
+> 不再做「从工具安装位置向上回溯」的自动探测。
+
+```bash
+# 持久化指定编辑器根目录（网易发烧友平台：蛋仔派对「开始游戏」旁 ≡ => 查看文件 即安装目录）
+eui config set editor-root D:/FeverApps/party_pc
+eui config get editor-root        # 查看
+eui config unset editor-root      # 删除
+
+# 或本次临时指定
+eui export -r D:/FeverApps/party_pc 我的地图
+```
+
+> 配置文件 `~/.euiexport.json` 属于项目级配置，需要提交到git仓库。
 ### `edit` 选项
 
 | 参数 | 说明 |
@@ -131,7 +137,7 @@ export EGGY_EUI_OUTPUT=/data/eui     # macOS / Linux
 | `-l, --list` | 列出所有地图草稿 |
 | `--in-place` | 直接写回原 `eui.mm`（自动备份 `eui.mm.bak`） |
 | `-o, --output <file>` | 输出到指定文件（默认: `<地图目录>/eui.modified.mm`） |
-| `-r, --root <path>` | 手动指定编辑器根目录 |
+| `-r, --root <path>` | 手动指定编辑器根目录（也可用 `eui config set editor-root <path>` 持久化） |
 | `-q, --quiet` `--no-color` `-h, --help` | 通用选项 |
 
 **路径语法**：数组用 `[下标]`（或 `.下标`）；节点可用「名称」或「id」选择；嵌套对象用 `.` 逐层进。`--set` 值能按 JSON 解析就按 JSON（数字 / 布尔 / 数组 / 对象），否则按字符串。
