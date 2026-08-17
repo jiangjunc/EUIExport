@@ -45,6 +45,20 @@ async function main() {
     const hit = maps.matchByName(drafts, drafts[0].name);
     assert(hit.length === 1, '按名称应唯一命中');
     console.log(`PASS  按名称解析: "${drafts[0].name}" -> ${hit[0].folder}`);
+
+    // 优先级匹配单测（精确 > 前缀 > 包含；防止“a”被“aaa”挤掉而误报冲突）
+    const pick = (d) => d.name;
+    const fake = [{ name: 'a' }, { name: 'aaa' }, { name: 'a_x' }, { name: 'zz' }];
+    const exact = maps.matchByPriority(fake, 'a', pick);
+    assert(exact.length === 1 && exact[0].name === 'a', '精确“a”应唯一命中，而不是与“aaa”冲突');
+    assert(maps.matchByPriority(fake, 'aaa', pick)[0].name === 'aaa', '精确“aaa”应唯一命中');
+    assert(maps.matchByPriority(fake, 'a_', pick)[0].name === 'a_x', '前缀层应唯一命中');
+    assert(maps.matchByPriority(fake, 'z', pick)[0].name === 'zz', '包含层应兜底命中');
+    const multi = maps.matchByPriority([{ name: 'xa' }, { name: 'xb' }], 'x', pick);
+    assert(multi.length === 2, '前缀层多个命中应返回该层全部');
+    const nameHit = maps.matchByName(fake, 'a');
+    assert(nameHit.length === 1 && nameHit[0].name === 'a', 'matchByName 也应优先精确命中');
+    console.log('PASS  优先级匹配（精确>前缀>包含）');
     return;
   }
 
