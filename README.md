@@ -5,7 +5,7 @@
 [![GitHub](https://img.shields.io/badge/GitHub-jiangjunc%2FEUIExport-blue)](https://github.com/jiangjunc/EUIExport)
 
 > 蛋仔派对 PC 编辑器 EUI 工具 CLI：**导出** + **字段编辑**，一个命令搞定。
-> 命令行参数解析基于 [commander](https://github.com/tj/commander.js)，交互选择基于 [enquirer](https://github.com/enquirer/enquirer)，编解码（Zstandard + MessagePack）全部内置。
+> 命令行参数解析基于 [commander](https://github.com/tj/commander.js)，交互选择基于 [enquirer](https://github.com/enquirer/enquirer)，输出美化基于 chalk / boxen / cli-table3 / figures，编解码（Zstandard + MessagePack）全部内置。
 > 同时支持 **FS（帧同步）** 与 **SE（世界版 / 状态同步）** 两类地图。
 >
 > **适用对象**：蛋仔派对 PC 编辑器（Eggitor）的地图工程开发者。
@@ -205,7 +205,7 @@ EUIExport/
 ├── test/
 │   ├── smoke.js         # 导出流水线冒烟测试
 │   └── edit-smoke.js    # 编辑往返保真冒烟测试
-└── package.json         # 依赖：commander（参数解析）+ enquirer（交互选择）
+└── package.json         # 依赖：commander（参数解析）+ enquirer（交互选择）+ chalk/boxen/cli-table3/figures（输出美化）
 ```
 
 ## 测试
