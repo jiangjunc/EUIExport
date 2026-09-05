@@ -15,8 +15,10 @@ const { exportScene, countNodes, treeMarkdown, buildNodeIndex } = require('../li
 const maps = require('../lib/maps');
 
 async function loadScene(input) {
-  const euiPath = path.join(path.resolve(process.cwd(), input), 'eui.mm');
-  if (!fs.existsSync(euiPath)) throw new Error(`未找到 ${euiPath}`);
+  const dir = path.resolve(process.cwd(), input);
+  // FS 图为 eui.mm，SE 图为 euidata.mm
+  const euiPath = ['eui.mm', 'euidata.mm'].map((f) => path.join(dir, f)).find((p) => fs.existsSync(p));
+  if (!euiPath) throw new Error(`未找到 ${path.join(dir, 'eui.mm')} 或 euidata.mm`);
   const dec = new ZSTDDecoder();
   await dec.init();
   const raw = Buffer.from(dec.decode(new Uint8Array(fs.readFileSync(euiPath))));

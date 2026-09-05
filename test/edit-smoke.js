@@ -35,8 +35,9 @@ async function main() {
     dir = drafts[0].dir;
     console.log(`（未指定地图，用首个草稿: ${drafts[0].name}）`);
   }
-  const mm = path.join(dir, 'eui.mm');
-  assert(fs.existsSync(mm), `缺少 ${mm}`);
+  // FS 图为 eui.mm，SE 图为 euidata.mm
+  const mm = ['eui.mm', 'euidata.mm'].map((f) => path.join(dir, f)).find((p) => fs.existsSync(p));
+  assert(mm, `缺少 ${path.join(dir, 'eui.mm')} 或 euidata.mm`);
 
   // 解码
   const dec = new ZSTDDecoder();
