@@ -1,12 +1,12 @@
-# 依赖与锁文件
-node_modules/
-.npm-cache/
+# 构建产物
+build/
+*.o
+*.obj
 
 # 日志
-npm-debug.log*
 *.log
 
-# 导出/编辑产物
+# 导出产物 / 备份
 *.bak
 eui.modified.mm
 _tmp*/
